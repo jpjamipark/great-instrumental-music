@@ -10,6 +10,7 @@
   <header>
     <h1>great instrumental music</h1>
     <p class="subtitle">craigslist washington dc / community</p>
+    <p class="last-updated" id="last-updated"></p>
   </header>
 
   <main id="posts"></main>
@@ -24,6 +25,16 @@
         container.innerHTML = '<p class="empty">No posts yet. Run the scraper first.</p>';
         return;
       }
+
+      // Show last updated date (most recent last_seen)
+      const lastUpdated = data.posts.reduce((latest, post) => {
+        const postDate = new Date(post.last_seen);
+        return postDate > latest ? postDate : latest;
+      }, new Date(0));
+      document.getElementById('last-updated').textContent =
+        'last updated: ' + lastUpdated.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'short', day: 'numeric'
+        });
 
       data.posts.forEach(post => {
         const card = document.createElement('article');
@@ -51,12 +62,12 @@
             <span class="toggle">+</span>
           </div>
           <div class="post-details">
-            <p class="description">${escapeHtml(post.description)}</p>
             ${post.images.length > 0 ? `
               <div class="images">
                 ${post.images.map(img => `<img src="${img}" alt="">`).join('')}
               </div>
             ` : ''}
+            <div class="description">${linkify(post.description)}</div>
             <p class="post-link"><a href="${post.url}" target="_blank">view on craigslist</a></p>
             <p class="timestamps">
               first seen: ${new Date(post.first_seen).toLocaleString()}<br>
@@ -78,6 +89,29 @@
       const div = document.createElement('div');
       div.textContent = text || '';
       return div.innerHTML;
+    }
+
+    function linkify(text) {
+      // First escape HTML, then convert URLs to links or embeds
+      const escaped = escapeHtml(text);
+      const urlPattern = /(https?:\/\/[^\s<]+)/g;
+
+      return escaped.replace(urlPattern, (url) => {
+        // YouTube video: youtu.be/ID
+        const ytVideo = url.match(/youtu\.be\/([\w-]+)/);
+        if (ytVideo) {
+          return `<iframe width="640" height="360" src="https://www.youtube.com/embed/${ytVideo[1]}" frameborder="0" loading="lazy" allowfullscreen></iframe>`;
+        }
+
+        // YouTube playlist
+        const ytPlaylist = url.match(/youtube\.com\/playlist\?list=([\w-]+)/);
+        if (ytPlaylist) {
+          return `<iframe width="640" height="360" src="https://www.youtube.com/embed/videoseries?list=${ytPlaylist[1]}" frameborder="0" loading="lazy" allowfullscreen></iframe>`;
+        }
+
+        // Regular link
+        return `<a href="${url}" target="_blank">${url}</a>`;
+      });
     }
 
     loadPosts();

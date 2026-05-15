@@ -1,0 +1,87 @@
+name: Scrape Craigslist
+
+on:
+  schedule:
+    # Run daily at 6 AM ET (10:00 UTC, or 11:00 UTC during DST)
+    - cron: "0 10 * * *"
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
+      - name: Run scraper
+        id: scrape
+        run: npm run scrape
+        continue-on-error: true
+
+      - name: Retry scraper (attempt 2)
+        if: steps.scrape.outcome == 'failure'
+        id: scrape2
+        run: |
+          sleep 30
+          npm run scrape
+        continue-on-error: true
+
+      - name: Retry scraper (attempt 3)
+        if: steps.scrape2.outcome == 'failure'
+        run: |
+          sleep 60
+          npm run scrape
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/ images/
+          git diff --staged --quiet || git commit -m "Update posts $(date -u +%Y-%m-%d)"
+          git push
+
+  deploy:
+    needs: scrape
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Pull latest changes
+        run: git pull origin main
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,159 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: arial, helvetica, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  background: #f6f6f6;
+  color: #222;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  border-bottom: 2px solid #800080;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 18px;
+  font-weight: normal;
+  color: #800080;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #666;
+}
+
+.empty {
+  color: #666;
+  text-align: center;
+  padding: 40px;
+}
+
+.post {
+  background: #fff;
+  border: 1px solid #ccc;
+  margin-bottom: 8px;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.post-header:hover {
+  background: #f0f0f0;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.no-image {
+  width: 80px;
+  height: 60px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.post-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.post-title {
+  font-size: 14px;
+  font-weight: normal;
+  color: #00c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-title:hover {
+  text-decoration: underline;
+}
+
+.post-meta {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.post-meta span {
+  margin-right: 12px;
+}
+
+.location::before {
+  content: "@ ";
+}
+
+.price {
+  color: #090;
+}
+
+.toggle {
+  font-size: 20px;
+  color: #999;
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+
+.post-details {
+  display: none;
+  padding: 12px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+}
+
+.post.expanded .post-details {
+  display: block;
+}
+
+.description {
+  white-space: pre-wrap;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.images img {
+  max-width: 300px;
+  max-height: 200px;
+  border: 1px solid #ccc;
+}
+
+.post-link a {
+  color: #00c;
+}
+
+.timestamps {
+  font-size: 11px;
+  color: #999;
+  margin-top: 12px;
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Great Instrumental Music - Craigslist Archive</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>great instrumental music</h1>
+    <p class="subtitle">craigslist washington dc / community</p>
+  </header>
+
+  <main id="posts"></main>
+
+  <script>
+    async function loadPosts() {
+      const res = await fetch('data/posts.json');
+      const data = await res.json();
+      const container = document.getElementById('posts');
+
+      if (data.posts.length === 0) {
+        container.innerHTML = '<p class="empty">No posts yet. Run the scraper first.</p>';
+        return;
+      }
+
+      data.posts.forEach(post => {
+        const card = document.createElement('article');
+        card.className = 'post';
+
+        const thumbnail = post.images.length > 0
+          ? `<img src="${post.images[0]}" alt="" class="thumbnail">`
+          : '<div class="no-image">no image</div>';
+
+        const date = post.posted_date
+          ? new Date(post.posted_date).toLocaleDateString()
+          : 'no date';
+
+        card.innerHTML = `
+          <div class="post-header">
+            ${thumbnail}
+            <div class="post-info">
+              <h2 class="post-title">${escapeHtml(post.title)}</h2>
+              <p class="post-meta">
+                <span class="location">${escapeHtml(post.location)}</span>
+                <span class="date">${date}</span>
+                <span class="price">${escapeHtml(post.price)}</span>
+              </p>
+            </div>
+            <span class="toggle">+</span>
+          </div>
+          <div class="post-details">
+            <p class="description">${escapeHtml(post.description)}</p>
+            ${post.images.length > 0 ? `
+              <div class="images">
+                ${post.images.map(img => `<img src="${img}" alt="">`).join('')}
+              </div>
+            ` : ''}
+            <p class="post-link"><a href="${post.url}" target="_blank">view on craigslist</a></p>
+            <p class="timestamps">
+              first seen: ${new Date(post.first_seen).toLocaleString()}<br>
+              last seen: ${new Date(post.last_seen).toLocaleString()}
+            </p>
+          </div>
+        `;
+
+        card.querySelector('.post-header').addEventListener('click', () => {
+          card.classList.toggle('expanded');
+          card.querySelector('.toggle').textContent = card.classList.contains('expanded') ? '−' : '+';
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    loadPosts();
+  </script>
+</body>
+</html>

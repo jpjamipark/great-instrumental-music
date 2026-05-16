@@ -26,17 +26,21 @@
         return;
       }
 
+      // Sort posts by posted_date (most recent first)
+      const sortedPosts = data.posts.sort((a, b) => {
+        const dateA = a.posted_date ? new Date(a.posted_date).getTime() : 0;
+        const dateB = b.posted_date ? new Date(b.posted_date).getTime() : 0;
+        return dateB - dateA;
+      });
+
       // Show last updated date (most recent last_seen)
-      const lastUpdated = data.posts.reduce((latest, post) => {
-        const postDate = new Date(post.last_seen);
-        return postDate > latest ? postDate : latest;
-      }, new Date(0));
+      const lastUpdated = new Date(sortedPosts[0].last_seen);
       document.getElementById('last-updated').textContent =
         'last updated: ' + lastUpdated.toLocaleDateString('en-US', {
           year: 'numeric', month: 'short', day: 'numeric'
         });
 
-      data.posts.forEach(post => {
+      sortedPosts.forEach(post => {
         const card = document.createElement('article');
         card.className = 'post';
 

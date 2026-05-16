@@ -38,11 +38,11 @@ export async function scrapeListing(page: Page, url: string): Promise<Post | nul
     const post_id = postIdMatch[1];
 
     // Wait for content
-    await page.waitForSelector("#titletextonly", { timeout: 5000 }).catch(() => null);
+    await page.waitForSelector(".postingtitletext", { timeout: 5000 }).catch(() => null);
 
-    // Extract fields
-    const title = await page.$eval("#titletextonly",
-      (el) => el.textContent?.trim() || ""
+    // Extract title
+    const title = await page.$eval(".postingtitletext",
+      (el) => (el as HTMLElement).innerText.trim()
     ).catch(() => "");
 
     const description = await page.$eval("#postingbody", (el) => {

@@ -102,13 +102,13 @@
         // YouTube video: youtu.be/ID
         const ytVideo = url.match(/youtu\.be\/([\w-]+)/);
         if (ytVideo) {
-          return `<iframe width="640" height="360" src="https://www.youtube.com/embed/${ytVideo[1]}" frameborder="0" loading="lazy" allowfullscreen></iframe>`;
+          return `<iframe src="https://www.youtube.com/embed/${ytVideo[1]}" frameborder="0" loading="lazy" width="100%" style="aspect-ratio: 16 / 9;" allowfullscreen></iframe>`;
         }
 
         // YouTube playlist
         const ytPlaylist = url.match(/youtube\.com\/playlist\?list=([\w-]+)/);
         if (ytPlaylist) {
-          return `<iframe width="640" height="360" src="https://www.youtube.com/embed/videoseries?list=${ytPlaylist[1]}" frameborder="0" loading="lazy" allowfullscreen></iframe>`;
+          return `<iframe src="https://www.youtube.com/embed/videoseries?list=${ytPlaylist[1]}" frameborder="0" loading="lazy" width="100%" style="aspect-ratio: 16 / 9;" allowfullscreen></iframe>`;
         }
 
         // Regular link

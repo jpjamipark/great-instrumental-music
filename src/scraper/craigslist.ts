@@ -53,13 +53,6 @@ export async function scrapeListing(page: Page, url: string): Promise<Post | nul
       return clone.textContent?.trim() || "";
     }).catch(() => "");
 
-    const location = await page.$eval(".postingtitletext small",
-      (el) => el.textContent?.trim().replace(/[()]/g, "") || ""
-    ).catch(() => "");
-
-    const price = await page.$eval(".postingtitletext .price",
-      (el) => el.textContent?.trim() || "$0"
-    ).catch(() => "$0");
 
     const posted_date = await page.$eval("time.date",
       (el) => el.getAttribute("datetime") || ""
@@ -85,8 +78,6 @@ export async function scrapeListing(page: Page, url: string): Promise<Post | nul
       url,
       title,
       description,
-      location,
-      price,
       posted_date,
       first_seen: now,
       last_seen: now,

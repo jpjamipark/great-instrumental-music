@@ -3,8 +3,6 @@ export interface Post {
   url: string;
   title: string;
   description: string;
-  location: string;
-  price: string;
   posted_date: string;
   first_seen: string;
   last_seen: string;

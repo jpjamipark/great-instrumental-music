@@ -8,6 +8,7 @@ import {
   scrapeListing,
   downloadPostImages,
 } from "./craigslist.js";
+import { extractPostId } from "./parse.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "../..");
@@ -52,9 +53,8 @@ async function scraper(): Promise<void> {
       // Add delay between requests to be polite
       await new Promise((r) => setTimeout(r, 1000 + Math.random() * 2000));
 
-      const postIdMatch = url.match(/\/(\d+)\.html/);
-      if (!postIdMatch) continue;
-      const postId = postIdMatch[1];
+      const postId = extractPostId(url);
+      if (!postId) continue;
 
       if (existingIds.has(postId)) {
         // Update last_seen for existing post

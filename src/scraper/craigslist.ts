@@ -1,5 +1,6 @@
 import { Page } from "playwright";
 import { Post } from "./types.js";
+import { extractListingUrlsFromHtml, extractPostId } from "./parse.js";
 import * as fs from "fs";
 import * as path from "path";
 import * as https from "https";
@@ -11,31 +12,27 @@ const SEARCH_URL =
 export async function getListingUrls(page: Page): Promise<string[]> {
   await page.goto(SEARCH_URL, { waitUntil: "networkidle" });
 
-  // Wait for results to load
-  await page.waitForTimeout(2000);
+  // Wait for either rendered results or the empty-state message
+  await Promise.race([
+    page.waitForSelector("li.cl-static-search-result, a.posting-title, .cl-search-result", {
+      timeout: 8000,
+    }),
+    page.waitForSelector("text=no results found", { timeout: 8000 }),
+  ]).catch(() => null);
 
-  // Get all posting links - only from washingtondc.craigslist.org (exclude nearby areas)
-  const urls = await page.$$eval("a.posting-title", (links) =>
-    links
-      .map((a) => (a as HTMLAnchorElement).href)
-      .filter((href) =>
-        /\/\d+\.html$/.test(href) &&
-        href.includes("washingtondc.craigslist.org")
-      )
-  );
+  // Give the SPA a moment to finish hydrating result cards
+  await page.waitForTimeout(1500);
 
-  // Deduplicate URLs
-  return [...new Set(urls)];
+  // page.content() reflects the live DOM after JS render
+  return extractListingUrlsFromHtml(await page.content(), page.url());
 }
 
 export async function scrapeListing(page: Page, url: string): Promise<Post | null> {
   try {
     await page.goto(url, { waitUntil: "networkidle" });
 
-    // Extract post_id from URL
-    const postIdMatch = url.match(/\/(\d+)\.html/);
-    if (!postIdMatch) return null;
-    const post_id = postIdMatch[1];
+    const post_id = extractPostId(url);
+    if (!post_id) return null;
 
     // Wait for content
     await page.waitForSelector(".postingtitletext", { timeout: 5000 }).catch(() => null);

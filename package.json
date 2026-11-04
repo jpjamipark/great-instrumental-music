@@ -6,7 +6,7 @@
   "scripts": {
     "scrape": "npx tsx src/scraper/index.ts",
     "dev": "npx serve .",
-    "test": "tsx --test src/scraper/**/*.test.ts"
+    "test": "tsx --test src/scraper/*.test.ts"
   },
   "dependencies": {
     "playwright": "^1.40.0"
